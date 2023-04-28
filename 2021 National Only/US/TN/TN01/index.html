@@ -1,5 +1,101 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<?
+//  To edit timestamp on file on server, use the following command as an example:
+//  touch -t 201306050500 USTNR00137.pdf
+//  ... where timestamp is in YYYYMMDDTTTT format
+
+   function getFileList($dir)
+      {
+         // array to hold return value
+         $retval = array();
+
+         // add trailing slash if missing
+         if(substr($dir, -1) != "/") $dir .= "/";
+
+         // open pointer to directory and read list of files
+         $d = @dir($dir) or die("getFileList: Failed opening directory $dir for reading");
+         while(false !== ($entry = $d->read())) {
+            // skip hidden files
+            if($entry[0] == ".") continue;
+            if(is_dir("$dir$entry")) {
+               $retval[] = array(
+                  // "name" => "$dir$entry/",
+				  "name" => "$entry/",
+                  "type" => filetype("$dir$entry"),
+                  "size" => 0,
+                  "lastmod" => filemtime("$dir$entry")
+               );
+			   arsort($retval);
+            } elseif(is_readable("$dir$entry")) {
+               $retval[] = array(
+                 //  "name" => "$dir$entry",
+				  "name" => "$entry",
+                  "type" => mime_content_type("$dir$entry"),
+                  "size" => filesize("$dir$entry"),
+                  "lastmod" => filemtime("$dir$entry")
+               );
+			   arsort($retval);
+           }
+        }
+        $d->close();
+
+        return $retval;
+     }
+?>  
+</head>
+<body>
   <center><p>&nbsp;</p>
     <p><bold style="font-size: 40px;">FUTURE LIST OF TONNAGE DATA</bold></p>
   </center>
-</html>
+  
+          <p><strong>There are 2 files for each date.</strong> One file is the tonnage totals in pdf version and the other is a delimited file containing the details of the report for the same date as the pdf. Click onto the desired file to view and/or download.</p>
+          <p><strong>NOTE: </strong>To save the desired &quot;Download Details&quot; file, right-click the desired link and choose &quot;Save Link As&quot; or &quot;Save Target As&quot; (depending upon your browser).<br />
+          </p>
+          <table width="700" border="0" cellpadding="0">
+            <tr>
+              <td width="150" class="tblHdrGrn"><strong>DATE</strong></td>
+              <td width="275" class="tblHdrGrn"><strong>VIEW REPORT</strong></td>
+              <td width="275" class="tblHdrGrn"><strong>DOWNLOAD DETAILS</strong></td>
+            </tr>
+          </table>
+          <table width="700" border="0" cellpadding="0">
+            <tr>
+              <td valign="top" colspan="3" style="padding: 0px; background-color: rgb(80,80,80); font-size: 8px;"><img src="../../Images/blank1X1.gif" alt="" width="200px" height="2px" /></td>
+            </tr>
+            <?
+	$dirlist = getFileList("/usr/home/gafsis/EFC/AL/TN/TN02");
+	foreach($dirlist as $file) {
+		if(!preg_match("/\.pdf$/", $file['name'])) continue;
+          $downloadURL = "http://www.gafsis.com/tonnage/AL/TN02/";
+		  $fileNamePDF = $file['name'];
+		  $fileNameTXT = rtrim($fileNamePDF, 'pdf')."txt";
+		  echo "<tr>";
+		  echo " <td width=\"150\" class=\"tblBdyGrn\">",date('M d, Y', $file['lastmod']),"</td>";
+		  echo " <td width=\"275\" class=\"tblBdyGrn\"><a href=\"$downloadURL$fileNamePDF\">State Tonnage Report</a></td>";
+		  echo " <td width=\"275\" class=\"tblBdyGrn\"><a href=\"$downloadURL$fileNameTXT\">Download Details</a></td>";
+		  echo "</tr>";
+	}
+?>
+            <tr>
+              <td valign="top" colspan="3" style="padding: 0px; background-color: rgb(80,80,80); font-size: 8px;"><img src="../../Images/blank1X1.gif" alt="" width="200px" height="5px" /></td>
+            </tr>
+            <?
+	$dirlist = getFileList("/usr/home/gafsis/EFC/AL/TN/TN12");
+	foreach($dirlist as $file) {
+		if(!preg_match("/\.pdf$/", $file['name'])) continue;
+          $downloadURL = "http://www.gafsis.com/tonnage/AL/TN12/";
+		  $fileNamePDF = $file['name'];
+		  $fileNameTXT = rtrim($fileNamePDF, 'pdf')."txt";
+		  echo "<tr>";
+		  echo " <td width=\"150\" class=\"tblBdyGrn\"><strong>Previous Season</strong></td>";
+		  echo " <td width=\"550\" class=\"tblBdyGrn\" colspan=\"2\"><a href=\"$downloadURL$fileNamePDF\">View State Tonnage Report For Last Season</a></td>";
+		  echo "</tr>";
+	}
+?>
+          </table>  
+  
+  </body>
+  </html>
