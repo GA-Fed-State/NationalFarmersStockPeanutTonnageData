@@ -6,6 +6,13 @@
 <body>
  <center><p>&nbsp;</p>
     <p><bold style="font-size: 40px;">FUTURE LIST OF TONNAGE DATA</bold></p>
+ 
+   <ul>
+    {% for url in site.static_files %}
+    <li><a href="{{ site.baseurl | escape }}{{ url.path | escape }}">{{ url.path | escape }}</a> </li>
+    {% endfor %}
+  </ul>
+ 
  </center>
   </body>
   </html>
